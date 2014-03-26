@@ -1,0 +1,5 @@
+/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0/build/CMakeFiles/V3D.dir
+/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0/build/Apps/CMakeFiles/bundle_common.dir
+/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0/build/Apps/CMakeFiles/bundle_varying.dir
+/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0/build/Apps/CMakeFiles/bundle_varying_nonlinlsq.dir
+/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0/build/CMakeFiles/colamd.dir
