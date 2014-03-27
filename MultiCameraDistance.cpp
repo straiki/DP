@@ -13,6 +13,7 @@
 #include "RichFeatureMatcher.h"
 #include "OFFeatureMatcher.h"
 #include "GPUSURFFeatureMatcher.h"
+#include "ConfigIO.h"
 
 //c'tor
 MultiCameraDistance::MultiCameraDistance(
@@ -36,7 +37,10 @@ imgs_names(imgs_names_),features_matched(false),use_rich_features(true),use_gpu(
 		}
 		
 		imgs.push_back(cv::Mat());
-		cvtColor(imgs_orig[i],imgs[i], CV_BGR2GRAY);
+//        Mat tmp = cv::Mat();
+        cvtColor(imgs_orig[i],imgs[i], CV_BGR2GRAY);
+
+        // gray colour only
 		
 		imgpts.push_back(std::vector<cv::KeyPoint>());
 		imgpts_good.push_back(std::vector<cv::KeyPoint>());

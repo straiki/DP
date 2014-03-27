@@ -41,12 +41,12 @@ public:
 	}
 };
 
-std::vector<cv::Mat> images;
-std::vector<std::string> images_names;
+std::vector<cv::Mat> Images;
+std::vector<std::string> Images_names;
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
-		cerr << "USAGE: " << argv[0] << " <path_to_images> [use rich features (RICH/OF) = RICH] [use GPU (GPU/CPU) = GPU] [downscale factor = 1.0]" << endl;
+        cerr << "USAGE: " << argv[0] << " <path_to_images> [use rich features (RICH/OF) = RICH] [use GPU (GPU/CPU) = CPU] [downscale factor = 1.0]" << endl;
 		return 0;
 	}
 	
@@ -54,14 +54,14 @@ int main(int argc, char** argv) {
 	if(argc >= 5)
 		downscale_factor = atof(argv[4]);
 
-	open_imgs_dir(argv[1],images,images_names,downscale_factor);
-	if(images.size() == 0) { 
+    open_imgs_dir(argv[1],Images,Images_names,downscale_factor);
+    if(Images.size() == 0) {
 		cerr << "can't get image files" << endl;
 		return 1;
 	}
 
-	
-	cv::Ptr<MultiCameraPnP> distance = new MultiCameraPnP(images,images_names,string(argv[1]));
+    // open files, conver to grayscale, load cam matrix
+    cv::Ptr<MultiCameraPnP> distance = new MultiCameraPnP(Images,Images_names,string(argv[1]));
 	if(argc < 3)
 		distance->use_rich_features = true;
 	else
@@ -70,13 +70,13 @@ int main(int argc, char** argv) {
 	if(argc < 4)
 		distance->use_gpu = (cv::gpu::getCudaEnabledDeviceCount() > 0);
 	else
-		distance->use_gpu = (strcmp(argv[3], "GPU") == 0);
+        distance->use_gpu = (strcmp(argv[3], "CPU") == 0);
 	
 	cv::Ptr<VisualizerListener> visualizerListener = new VisualizerListener; //with ref-count
 	distance->attach(visualizerListener);
 	RunVisualizationThread();
 
-	distance->RecoverDepthFromImages();
+    distance->RecoverDepthFromImages();
 
 	//get the scale of the result cloud using PCA
 	double scale_cameras_down = 1.0;

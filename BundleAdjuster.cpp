@@ -82,7 +82,7 @@ void BundleAdjuster::adjustBundle(vector<CloudPoint>& pointcloud,
 {
 	int N = Pmats.size(), M = pointcloud.size(), K = Count2DMeasurements(pointcloud);
 	
-	cout << "N (cams) = " << N << " M (points) = " << M << " K (measurements) = " << K << endl;
+    cout << "N (cams) = " << N << "; M (points) = " << M << "; K (measurements) = " << K << endl;
 	
 	StdDistortionFunction distortion;
 	
@@ -141,8 +141,13 @@ void BundleAdjuster::adjustBundle(vector<CloudPoint>& pointcloud,
 		cams[i].setIntrinsic(Knorm);
 		cams[i].setRotation(R);
 		cams[i].setTranslation(T);
-	}
-	cout << "Read the cameras." << endl;
+
+//@TODO - Tady mam vsechny kamery :)
+    }
+
+
+    cout << "Read the cameras." << endl;
+
 	
 	vector<Vector2d > measurements;
 	vector<int> correspondingView;

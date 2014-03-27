@@ -16,6 +16,7 @@ using namespace std;
 
 #include <opencv2/gpu/gpu.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/core/core.hpp>
 
 bool sort_by_first(pair<int,pair<int,int> > a, pair<int,pair<int,int> > b) { return a.first < b.first; }
 
@@ -58,7 +59,7 @@ void MultiCameraPnP::GetBaseLineTriangulation() {
 		else {
 			int Hinliers = FindHomographyInliers2Views((*i).first.first,(*i).first.second);
 			int percent = (int)(((double)Hinliers) / ((double)(*i).second.size()) * 100.0);
-			cout << "[" << (*i).first.first << "," << (*i).first.second << " = "<<percent<<"] ";
+            cout << "[" << (*i).first.first << "," << (*i).first.second << " = "<<percent<<"%] ";
 			matches_sizes.push_back(make_pair((int)percent,(*i).first));
 		}
 	}
@@ -122,8 +123,12 @@ void MultiCameraPnP::GetBaseLineTriangulation() {
 		cerr << "Cannot find a good pair of images to obtain a baseline triangulation" << endl;
 		exit(0);
 	}
-	
+
 	cout << "Taking baseline from " << imgs_names[m_first_view] << " and " << imgs_names[m_second_view] << endl;
+
+//    cv::FileStorage fs("cameras.yaml", cv::FileStorage::APPEND);
+//    fs << "Cam " + imgs_names[m_first_view] + " " +  imgs_names[m_second_view] << K;
+//    fs.release();
 	
 //	double reproj_error;
 //	{
@@ -429,7 +434,7 @@ void MultiCameraPnP::AdjustCurrentBundle() {
 
 void MultiCameraPnP::PruneMatchesBasedOnF() {
 	//prune the match between <_i> and all views using the Fundamental matrix to prune
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (int _i=0; _i < imgs.size() - 1; _i++)
 	{
 		for (unsigned int _j=_i+1; _j < imgs.size(); _j++) {

@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #include "Common.h"
+#include "ConfigIO.h"
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -149,11 +150,16 @@ void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std
 	
 	if (dp != NULL)
 	{
+
 		while (ep = readdir (dp)) {
-			if (ep->d_name[0] != '.')
+            if (ep->d_name[0] != '.'){
 				files_.push_back(ep->d_name);
+//                fs << "Files" << ep->d_name;
+//                cout << ep->d_name << endl;
+            }
+
 		}
-		
+
 		(void) closedir (dp);
 	}
 	else {
@@ -204,7 +210,8 @@ void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std
 	FindClose(hFind);
 	hFind = INVALID_HANDLE_VALUE;
 #endif
-	
+    cout << "Saving filenames.." << endl;
+
 	for (unsigned int i=0; i<files_.size(); i++) {
 		if (files_[i][0] == '.' || !(hasEndingLower(files_[i],"jpg")||hasEndingLower(files_[i],"png"))) {
 			continue;
@@ -213,8 +220,11 @@ void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std
 		if(downscale_factor != 1.0)
 			cv::resize(m_,m_,Size(),downscale_factor,downscale_factor);
 		images_names.push_back(files_[i]);
+        //@TODO
+
 		images.push_back(m_);
 	}
-		
-
+    FileStorage fs("files.yaml",FileStorage::WRITE);
+    fs << "Files" << images_names;
+    fs.release();
 }

@@ -45,6 +45,7 @@ file(GLOB SFM_LIB_SOURCES
 	BundleAdjuster.*
 	AbstractFeatureMatcher.*
 	SfMUpdateListener.*
+        ConfigIO.*
 )
 
 add_library( ExploringSfMLibrary ${SFM_LIB_SOURCES} )
