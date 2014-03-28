@@ -11,6 +11,7 @@ endif()
 set(SSBA_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/3rdparty/SSBA-3.0/build" CACHE PATH "Directory to find SSBA libs")
 
 find_package(OpenCV REQUIRED)
+include_directories(/home/straiki/opencv/include)
 find_package(OpenMP REQUIRED)
 link_directories(
 	${SSBA_LIBRARY_DIR}
@@ -76,6 +77,7 @@ add_executable(ExploringSfMExec
 target_link_libraries(ExploringSfMExec 
 			ExploringSfMLibrary
 			${OpenCV_LIBS}
+                        opencv_features2d
 			${PCL_LIBRARIES}
 			V3D
 			colamd

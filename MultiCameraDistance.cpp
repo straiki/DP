@@ -48,9 +48,10 @@ imgs_names(imgs_names_),features_matched(false),use_rich_features(true),use_gpu(
 	}
 	std::cout << std::endl;
 		
+    directory_ = imgs_path_;
 	//load calibration matrix
 	cv::FileStorage fs;
-	if(fs.open(imgs_path_+ "\\out_camera_data.yml",cv::FileStorage::READ)) {
+    if(fs.open(imgs_path_+ "\\out_camera_data.yaml",cv::FileStorage::READ)) {
 		fs["camera_matrix"]>>cam_matrix;
 		fs["distortion_coefficients"]>>distortion_coeff;
 	} else {

@@ -14,6 +14,8 @@
 #include "MultiCameraDistance.h"
 #include "Common.h"
 #include "SfMUpdateListener.h"
+#include <iosfwd>
+#include <opencv2/features2d/features2d.hpp>
 
 class MultiCameraPnP : public MultiCameraDistance {
 	std::vector<CloudPoint> pointcloud_beforeBA;
@@ -32,6 +34,8 @@ public:
 
 	std::vector<cv::Point3d> getPointCloudBeforeBA() { return CloudPointsToPoints(pointcloud_beforeBA); }
 	const std::vector<cv::Vec3b>& getPointCloudRGBBeforeBA() { return pointCloudRGB_beforeBA; }
+
+
 
 private:
 	void PruneMatchesBasedOnF();
@@ -67,6 +71,8 @@ public:
     {
         listeners.push_back(sul);
     }
+    void SaveData();
+    void writeDataVector(std::vector<cv::KeyPoint> keyPoints, cv::FileStorage &fs);
 private:
     void update()
     {
@@ -78,3 +84,4 @@ private:
 								 getCameras());
     }
 };
+

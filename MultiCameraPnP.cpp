@@ -13,10 +13,12 @@
 #include "BundleAdjuster.h"
 
 using namespace std;
+using namespace cv;
 
 #include <opencv2/gpu/gpu.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 bool sort_by_first(pair<int,pair<int,int> > a, pair<int,pair<int,int> > b) { return a.first < b.first; }
 
@@ -468,6 +470,9 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 	GetBaseLineTriangulation();
 	AdjustCurrentBundle();
 	update(); //notify listeners
+
+    // save features
+    SaveData();
 	
 	cv::Matx34d P1 = Pmats[m_second_view];
 	cv::Mat_<double> t = (cv::Mat_<double>(1,3) << P1(0,3), P1(1,3), P1(2,3));
@@ -545,3 +550,59 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 	cout << "========================= Depth Recovery DONE ========================\n";
 	cout << "======================================================================\n";
 }
+
+void MultiCameraPnP::SaveData(){
+    cv::FileStorage fs("model_data.yaml", cv::FileStorage::WRITE);
+    if(!fs.isOpened()){
+        cerr << "Nelze otevrit soubor" << endl;
+    }
+
+    fs << "directory" << directory_;
+    fs << "files" << imgs_names;
+
+    ostringstream oss;
+
+    for(size_t i = 0; i < imgpts.size(); i++){
+        oss << "imgpts" << i;
+        fs << oss.str() << imgpts[i];
+        oss.str("");
+    }
+    for(size_t i = 0; i < imgpts_good.size(); i++){
+        oss << "imgpts_good" << i;
+        fs << oss.str() << imgpts_good[i];
+        oss.str("");
+    }
+
+    vector<Matx34d> vec = getCameras();
+    fs << "cameras" << vec;
+
+//    fs << "cloud_point" << pcloud; @not that easy
+//    int i = 0;
+//    for(std::vector<CloudPoint>::const_iterator it = pcloud.begin(); it != pcloud.end(); ++it ){
+//        oss << "pc_pt_" << i;
+//        fs << oss.str() << it->pt;
+//        oss.str("");
+//        oss << "pc_img_pt_" << i;
+//        fs << oss.str() << it->imgpt_for_img;
+//        oss.str("");
+//        oss << "pc_reproj_err_" << i;
+//        fs << oss.str() << it->reprojection_error;
+//        oss.str("");
+//        i++;
+//    }
+
+    fs.release();
+
+
+
+}
+
+//void MultiCameraPnP::writeDataVector(std::vector<cv::KeyPoint>keyPoints, cv::FileStorage &fs){
+//    ostringstream oss;
+
+//    for(size_t i; i < keyPoints.size(); ++i){
+//        oss << i;
+//        fs << oss.str() << keyPoints[i];
+//    }
+
+//}

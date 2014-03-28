@@ -224,7 +224,5 @@ void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std
 
 		images.push_back(m_);
 	}
-    FileStorage fs("files.yaml",FileStorage::WRITE);
-    fs << "Files" << images_names;
-    fs.release();
+
 }

@@ -11,9 +11,11 @@
 
 #pragma once
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <vector>
 #include <utility>
+
+#include <opencv2/core/core.hpp>
 
 #include "IDistance.h"
 #include "Triangulation.h"
@@ -32,6 +34,7 @@ protected:
 	std::vector<cv::Mat_<cv::Vec3b> > imgs_orig;
 	std::vector<cv::Mat> imgs;
 	std::vector<std::string> imgs_names;
+    std::string directory_;
 	
 	std::map<int,cv::Matx34d> Pmats;
 
@@ -53,6 +56,7 @@ public:
 	bool use_rich_features;
 	bool use_gpu;
 
+    void set_pics_directory(std::string dir){ directory_ = dir;}
 	std::vector<cv::Point3d> getPointCloud() { return CloudPointsToPoints(pcloud); }
 	const cv::Mat& get_im_orig(int frame_num) { return imgs_orig[frame_num]; }
 	const std::vector<cv::KeyPoint>& getcorrespImg1Pt() { return correspImg1Pt; }
