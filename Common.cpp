@@ -226,3 +226,38 @@ void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std
 	}
 
 }
+
+
+void writeVectorOfVector(FileStorage &fs, string name, vector<vector<KeyPoint> > &vov)
+{
+    ostringstream oss;
+
+    fs << name;
+    fs << "{";
+    for (int i = 0; i < vov.size(); i++)
+    {
+        oss << name + "_" << i;
+        fs << oss.str();
+        vector<KeyPoint> tmp = vov[i];
+        fs << tmp;
+    }
+    fs << "}";
+}
+
+void readVectorOfVector(FileStorage &fns, string name, vector<vector<KeyPoint> > &vov)
+{
+    vov.clear();
+    FileNode fn = fns[name];
+    if (fn.empty()){
+        return;
+    }
+
+    FileNodeIterator current = fn.begin(), it_end = fn.end(); // Go through the node
+    for (; current != it_end; ++current)
+    {
+        vector<KeyPoint> tmp;
+        FileNode item = *current;
+        read(item, tmp);
+        vov.push_back(tmp);
+    }
+}

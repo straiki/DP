@@ -84,7 +84,9 @@ public:
 		std::vector<cv::Mat> imgs; imgs.push_back(left_im); imgs.push_back(right_im);
 		std::vector<std::vector<cv::KeyPoint> > imgpts; imgpts.push_back(imgpts1); imgpts.push_back(imgpts2);
 		
-		RichFeatureMatcher rfm(imgs,imgpts);
+        std::vector<std::string> vec;
+        std::vector<cv::Mat> tmp;
+        RichFeatureMatcher rfm(imgs,imgpts, tmp, vec);
 		rfm.MatchFeatures(0, 1);
 		
 		imgpts1 = rfm.GetImagePoints(0);

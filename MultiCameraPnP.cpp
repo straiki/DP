@@ -15,10 +15,11 @@
 using namespace std;
 using namespace cv;
 
-#include <opencv2/gpu/gpu.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/opencv.hpp>
+//#include <opencv2/gpu/gpu.hpp>
+//#include <opencv2/calib3d/calib3d.hpp>
+//#include <opencv2/core/core.hpp>
+//#include <opencv2/features2d/features2d.hpp>
 
 bool sort_by_first(pair<int,pair<int,int> > a, pair<int,pair<int,int> > b) { return a.first < b.first; }
 
@@ -212,23 +213,12 @@ bool MultiCameraPnP::FindPoseEstimation(
 	}
 
 	vector<int> inliers;
-	if(!use_gpu) {
+    {
 		//use CPU
 		double minVal,maxVal; cv::minMaxIdx(imgPoints,&minVal,&maxVal);
 		CV_PROFILE("solvePnPRansac",cv::solvePnPRansac(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, 1000, 0.006 * maxVal, 0.25 * (double)(imgPoints.size()), inliers, CV_EPNP);)
 		//CV_PROFILE("solvePnP",cv::solvePnP(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, CV_EPNP);)
-	} else {
-		//use GPU ransac
-		//make sure datatstructures are cv::gpu compatible
-		cv::Mat ppcloud_m(ppcloud); ppcloud_m = ppcloud_m.t();
-		cv::Mat imgPoints_m(imgPoints); imgPoints_m = imgPoints_m.t();
-		cv::Mat rvec_,t_;
-
-		cv::gpu::solvePnPRansac(ppcloud_m,imgPoints_m,K_32f,distcoeff_32f,rvec_,t_,false);
-
-		rvec_.convertTo(rvec,CV_64FC1);
-		t_.convertTo(t,CV_64FC1);
-	}
+    }
 
 	vector<cv::Point2f> projected3D;
 	cv::projectPoints(ppcloud, rvec, t, K, distortion_coeff, projected3D);
@@ -240,7 +230,7 @@ bool MultiCameraPnP::FindPoseEstimation(
 		}
 	}
 
-#if 0
+
 	//display reprojected points and matches
 	cv::Mat reprojected; imgs_orig[working_view].copyTo(reprojected);
 	for(int ppt=0;ppt<imgPoints.size();ppt++) {
@@ -259,12 +249,12 @@ bool MultiCameraPnP::FindPoseEstimation(
 	stringstream ss; ss << "inliers " << inliers.size() << " / " << projected3D.size();
 	putText(reprojected, ss.str(), cv::Point(5,20), CV_FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,255), 2);
 
-	cv::imshow("__tmp", reprojected);
-	cv::waitKey(0);
-	cv::destroyWindow("__tmp");
-#endif
+//	cv::imshow("__tmp", reprojected);
+//	cv::waitKey(0);
+//    cv::destroyWindow("__tmp");
+
 	//cv::Rodrigues(rvec, R);
-	//visualizerShowCamera(R,t,0,255,0,0.1);
+//    visualizerShowCamera(R,t,0,255,0,0.1);
 
 	if(inliers.size() < (double)(imgPoints.size())/5.0) {
 		cerr << "not enough inliers to consider a good pose ("<<inliers.size()<<"/"<<imgPoints.size()<<")"<< endl;
@@ -458,9 +448,10 @@ void MultiCameraPnP::PruneMatchesBasedOnF() {
 	}
 }
 
+
 void MultiCameraPnP::RecoverDepthFromImages() {
 	if(!features_matched) 
-		OnlyMatchFeatures();
+        CV_PROFILE("OnlyMatchFeatures", OnlyMatchFeatures(););
 	
 	std::cout << "======================================================================\n";
 	std::cout << "======================== Depth Recovery Start ========================\n";
@@ -471,9 +462,6 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 	AdjustCurrentBundle();
 	update(); //notify listeners
 
-    // save features
-    SaveData();
-	
 	cv::Matx34d P1 = Pmats[m_second_view];
 	cv::Mat_<double> t = (cv::Mat_<double>(1,3) << P1(0,3), P1(1,3), P1(2,3));
 	cv::Mat_<double> R = (cv::Mat_<double>(3,3) << P1(0,0), P1(0,1), P1(0,2), 
@@ -545,6 +533,8 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 		AdjustCurrentBundle();
 		update();
 	}
+    // save features
+    SaveData();
 
 	cout << "======================================================================\n";
 	cout << "========================= Depth Recovery DONE ========================\n";
@@ -562,37 +552,62 @@ void MultiCameraPnP::SaveData(){
 
     ostringstream oss;
 
-    for(size_t i = 0; i < imgpts.size(); i++){
-        oss << "imgpts" << i;
-        fs << oss.str() << imgpts[i];
-        oss.str("");
-    }
-    for(size_t i = 0; i < imgpts_good.size(); i++){
-        oss << "imgpts_good" << i;
-        fs << oss.str() << imgpts_good[i];
-        oss.str("");
-    }
+    writeVectorOfVector(fs,"imgpts", imgpts);
+    writeVectorOfVector(fs,"imgpts_good", imgpts_good);
+
+    fs << "descriptors" << descriptors;
+
 
     vector<Matx34d> vec = getCameras();
-    fs << "cameras" << vec;
+    fs << "cameras" /*<< vec*/;
+    fs << "{";
+    Mat tmp(3,4,CV_64F);
+    for(int i = 0; i < vec.size(); ++i)
+    {
+        oss << "cam_" << i;
+        Matx34d tmp_matx = vec[i];
+        for(int row = 0; row < tmp.rows; ++row){
+            for(int col = 0; col < tmp.cols; ++ col){
+                tmp.at<double>(row, col) = tmp_matx(row,col);
+            }
+        }
+        fs << oss.str() << tmp;
+        oss.str("");
 
-//    fs << "cloud_point" << pcloud; @not that easy
-//    int i = 0;
-//    for(std::vector<CloudPoint>::const_iterator it = pcloud.begin(); it != pcloud.end(); ++it ){
-//        oss << "pc_pt_" << i;
-//        fs << oss.str() << it->pt;
-//        oss.str("");
-//        oss << "pc_img_pt_" << i;
-//        fs << oss.str() << it->imgpt_for_img;
-//        oss.str("");
-//        oss << "pc_reproj_err_" << i;
-//        fs << oss.str() << it->reprojection_error;
-//        oss.str("");
-//        i++;
-//    }
+    }
+    fs << "}";
+
+
+    //fs << "cloud_point" << pcloud; //@not that easy
+    char Str[20];
+
+    sprintf(Str, "%llu",pcloud.size());
+    fs << "pcloud" << Str; // number of points in cloud
+
+    oss.str("");
+
+    long int i = 0;
+    for(std::vector<CloudPoint>::const_iterator it = pcloud.begin(); it != pcloud.end(); ++it ){
+        oss << "pc_pt_" << i;
+        fs << oss.str() << it->pt;
+        oss.str("");
+        oss << "pc_img_pt_" << i;
+        fs << oss.str() << it->imgpt_for_img;
+        oss.str("");
+        oss << "pc_reproj_err_" << i;
+        fs << oss.str() << it->reprojection_error;
+        oss.str("");
+        i++;
+    }
 
     fs.release();
 
+    for(size_t i = 0; i < imgpts.size(); ++i){
+        cout << "Imgpts " << imgs_names[i] << ":" << imgpts[i].size() << endl;
+    }
+    for(size_t i = 0; i < imgpts_good.size(); ++i){
+        cout << "Imgpts_good " << imgs_names[i] << ":" << imgpts_good[i].size() << endl;
+    }
 
 
 }

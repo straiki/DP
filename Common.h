@@ -20,6 +20,8 @@
 #include <list>
 #include <set>
 
+#define USE_PROFILING 1
+
 struct CloudPoint {
 	cv::Point3d pt;
 	std::vector<int> imgpt_for_img;
@@ -44,9 +46,13 @@ void drawArrows(cv::Mat& frame, const std::vector<cv::Point2f>& prevPts, const s
 #ifdef USE_PROFILING
 #define CV_PROFILE(msg,code)	{\
 	std::cout << msg << " ";\
-	double __time_in_ticks = (double)cv::getTickCount();\
-	{ code }\
-	std::cout << "DONE " << ((double)cv::getTickCount() - __time_in_ticks)/cv::getTickFrequency() << "s" << std::endl;\
+    std::streambuf* ___oldCoutStreamBuf = std::cout.rdbuf();\
+    std::ostringstream ___strCout;\
+    std::cout.rdbuf( ___strCout.rdbuf() );\
+    double __time_in_ticks = (double)cv::getTickCount();\
+    { code }\
+    cout.rdbuf( ___oldCoutStreamBuf );\
+    std::cout << "DONE " << ((double)cv::getTickCount() - __time_in_ticks)/cv::getTickFrequency() << "s" << std::endl;\
 }
 #else
 #define CV_PROFILE(msg,code) code
@@ -54,3 +60,6 @@ void drawArrows(cv::Mat& frame, const std::vector<cv::Point2f>& prevPts, const s
 
 void open_imgs_dir(char* dir_name, std::vector<cv::Mat>& images, std::vector<std::string>& images_names, double downscale_factor);
 void imshow_250x250(const std::string& name_, const cv::Mat& patch);
+
+void readVectorOfVector(cv::FileStorage &fns, std::string name, std::vector<std::vector<cv::KeyPoint> > &vov);
+void writeVectorOfVector(cv::FileStorage &fs, std::string name, std::vector<std::vector<cv::KeyPoint> > &vov);

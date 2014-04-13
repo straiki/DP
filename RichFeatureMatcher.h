@@ -16,14 +16,15 @@ private:
 	cv::Ptr<cv::FeatureDetector> detector;
 	cv::Ptr<cv::DescriptorExtractor> extractor;
 	
-	std::vector<cv::Mat> descriptors;
+    std::vector<cv::Mat> descriptors;
 	
 	std::vector<cv::Mat>& imgs; 
 	std::vector<std::vector<cv::KeyPoint> >& imgpts;
+    std::vector<std::string> &imgs_names;
 public:
 	//c'tor
-	RichFeatureMatcher(std::vector<cv::Mat>& imgs, 
-					   std::vector<std::vector<cv::KeyPoint> >& imgpts);
+    RichFeatureMatcher(std::vector<cv::Mat>& imgs,
+                       std::vector<std::vector<cv::KeyPoint> >& imgpts, std::vector<cv::Mat> &descriptors_out, std::vector<std::string> &imgs_names_);
 	
 	void MatchFeatures(int idx_i, int idx_j, std::vector<cv::DMatch>* matches = NULL);
 	

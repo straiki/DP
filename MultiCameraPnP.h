@@ -16,6 +16,9 @@
 #include "SfMUpdateListener.h"
 #include <iosfwd>
 #include <opencv2/features2d/features2d.hpp>
+#include <stdio.h>
+#include "MyLoader.h"
+
 
 class MultiCameraPnP : public MultiCameraDistance {
 	std::vector<CloudPoint> pointcloud_beforeBA;
@@ -29,6 +32,28 @@ public:
 	MultiCameraDistance(imgs_,imgs_names_,imgs_path_) 
 	{
 	}
+
+    MultiCameraPnP(myloader *config, const std::vector<cv::Mat>& imgs_,
+                   const std::vector<std::string>& imgs_names_,
+                   const std::string& imgs_path_):
+               MultiCameraDistance(imgs_,imgs_names_,imgs_path_)
+    {
+        imgpts = config->imgpts;
+        imgpts_good = config->imgpts_good;
+        descriptors = config->descriptors;
+        imgs_orig = config->imgs_orig;
+        cam_matrix = config->cam_matrix;
+        distcoeff_32f = config->distcoeff_32f;
+        distortion_coeff = config->distortion_coeff;
+
+        Pmats = config->Pmats;
+
+        pcloud = config->pcloud;
+
+        matches_matrix = config->matches_matrix;
+
+
+    }
 
 	virtual void RecoverDepthFromImages();
 
@@ -73,6 +98,7 @@ public:
     }
     void SaveData();
     void writeDataVector(std::vector<cv::KeyPoint> keyPoints, cv::FileStorage &fs);
+    bool parseConfig(cv::FileStorage fs);
 private:
     void update()
     {

@@ -76,7 +76,7 @@ void MultiCameraDistance::OnlyMatchFeatures(int strategy)
 	if(features_matched) return;
 	
 	if (use_rich_features) {
-        feature_matcher = new RichFeatureMatcher(imgs,imgpts);
+        feature_matcher = new RichFeatureMatcher(imgs,imgpts,descriptors, imgs_names);
 	} else {
 		feature_matcher = new OFFeatureMatcher(use_gpu,imgs,imgpts);
 	}	

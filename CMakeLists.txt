@@ -9,6 +9,7 @@ if(EIGEN_INCLUDE_DIRS) # if compiling with PCL, it will bring Eigen with it
 endif()
 
 set(SSBA_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/3rdparty/SSBA-3.0/build" CACHE PATH "Directory to find SSBA libs")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 find_package(OpenCV REQUIRED)
 include_directories(/home/straiki/opencv/include)
@@ -47,6 +48,7 @@ file(GLOB SFM_LIB_SOURCES
 	AbstractFeatureMatcher.*
 	SfMUpdateListener.*
         ConfigIO.*
+        MyLoader.*
 )
 
 add_library( ExploringSfMLibrary ${SFM_LIB_SOURCES} )
