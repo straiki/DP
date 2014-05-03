@@ -1,0 +1,1 @@
+/usr/lib64/ccache/c++   -O3 -DNDEBUG    CMakeFiles/bundle_common.dir/bundle_common.cpp.o  -o bundle_common  -L/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0 -rdynamic ../libV3D.a ../libcolamd.a -Wl,-rpath,/data/projects/DP/SfM_OpenCV/3dparty/SSBA-3.0 
