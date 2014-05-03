@@ -44,13 +44,13 @@ public:
 std::vector<cv::Mat> Images;
 std::vector<std::string> Images_names;
 
-int main(int argc, char** argv) {
+int main_loop(int argc, char** argv) {
     cv::Ptr<MultiCameraPnP> distance;
 
     cv::Ptr<VisualizerListener> visualizerListener = new VisualizerListener; //with ref-count
 
     if(argc < 2){
-        cerr << argv[0] << " -config:file.yaml or " << argv[0] << " <path_to_images> [downscale factor = 1.0]" << endl;
+        cerr << argv[0] << " -config:file.yaml or " << argv[0] << " <path_to_images> create_model_only [downscale factor = 1.0]" << endl;
         return 0;
     }
 
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
         RunVisualizationThread();
     }else{
         double downscale_factor = 1.0;
-        if(argc == 3)
+        if(argc == 4)
             cout << argv[3] << endl;
     //        downscale_factor = strtod(argv[3], NULL);
 
@@ -89,7 +89,8 @@ int main(int argc, char** argv) {
 
 
         distance->attach(visualizerListener);
-        RunVisualizationThread();
+        if(argc != 3)
+            RunVisualizationThread();
 
         distance->RecoverDepthFromImages();
 
@@ -111,6 +112,8 @@ int main(int argc, char** argv) {
             //	scale_cameras_down = 1.0/scale_cameras_down;
             //}
         }
+        if(argc == 3)
+            return EXIT_SUCCESS;
 
     }
 	
@@ -134,4 +137,10 @@ int main(int argc, char** argv) {
 //			   distance->getPointCloudRGBBeforeBA()
 //			   );
 	WaitForVisualizationThread();
+}
+
+int main(int argc, char ** argv){
+    int ret;
+    CV_PROFILE("Creating model", ret = main_loop(argc, argv););
+    return ret;
 }

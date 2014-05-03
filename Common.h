@@ -42,17 +42,20 @@ void GetAlignedPointsFromMatch(const std::vector<cv::KeyPoint>& imgpts1,
 							   std::vector<cv::KeyPoint>& pt_set2);
 
 void drawArrows(cv::Mat& frame, const std::vector<cv::Point2f>& prevPts, const std::vector<cv::Point2f>& nextPts, const std::vector<uchar>& status, const std::vector<float>& verror, const cv::Scalar& line_color = cv::Scalar(0, 0, 255));
+/*
+std::cout << msg << " ";\
+std::streambuf* ___oldCoutStreamBuf = std::cout.rdbuf();\
+std::ostringstream ___strCout;\
+std::cout.rdbuf( ___strCout.rdbuf() );\
+---
+cout.rdbuf( ___oldCoutStreamBuf );\
+*/
 
 #ifdef USE_PROFILING
 #define CV_PROFILE(msg,code)	{\
-	std::cout << msg << " ";\
-    std::streambuf* ___oldCoutStreamBuf = std::cout.rdbuf();\
-    std::ostringstream ___strCout;\
-    std::cout.rdbuf( ___strCout.rdbuf() );\
     double __time_in_ticks = (double)cv::getTickCount();\
     { code }\
-    cout.rdbuf( ___oldCoutStreamBuf );\
-    std::cout << "DONE " << ((double)cv::getTickCount() - __time_in_ticks)/cv::getTickFrequency() << "s" << std::endl;\
+    std::cout << msg << " DONE " << ((double)cv::getTickCount() - __time_in_ticks)/cv::getTickFrequency() << "s" << std::endl;\
 }
 #else
 #define CV_PROFILE(msg,code) code

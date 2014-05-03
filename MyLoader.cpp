@@ -95,6 +95,8 @@ bool myloader::parseConfig()
         vector<int> tVec;
         double tErr;
 
+        double median = 0;
+
         for(size_t i = 0; i < counter; ++i){
             oss << "pc_pt_" << i;
             fs[oss.str()] >> tP;
@@ -110,10 +112,17 @@ bool myloader::parseConfig()
             i++;
 
             CloudPoint tCp = {tP,tVec,tErr};
-            pcloud.push_back(tCp);
+            int tCounter=0;
+            for(unsigned int i = 0; i < tVec.size(); ++i)
+            if(tVec[i] != -1) ++tCounter;
+
+//            median = (tP.z + median) / counter;
+
+            if(tCounter >= 2/* && tP.z < 65.*/)
+                pcloud.push_back(tCp);
         }
 
-        cout << "Cloudpoint: " << pcloud.size() << endl;
+        cout << "Cloudpoint: " << pcloud.size() << endl;// << " median.z " << median << endl;
     }
     return true;
 }
@@ -181,5 +190,3 @@ void myloader::loadFiles()
         std::cout << *i << std::endl;
     }
 }
-
-

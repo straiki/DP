@@ -299,6 +299,9 @@ bool MultiCameraPnP::TriangulatePointsBetweenViews(
 	double reproj_error = TriangulatePoints(pt_set1, pt_set2, K, Kinv, distortion_coeff, P, P1, new_triangulated, correspImg1Pt);
 	std::cout << "triangulation reproj error " << reproj_error << std::endl;
 
+    if(reproj_error == 0)
+        return false;
+
 	vector<uchar> trig_status;
 	if(!TestTriangulation(new_triangulated, P, trig_status) || !TestTriangulation(new_triangulated, P1, trig_status)) {
 		cerr << "Triangulation did not succeed" << endl;
@@ -542,7 +545,11 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 }
 
 void MultiCameraPnP::SaveData(){
-    cv::FileStorage fs("model_data.yaml", cv::FileStorage::WRITE);
+    cv::FileStorage fs;
+    if(directory_[directory_.length()-1] == '/')
+        fs = cv::FileStorage(directory_ +"model_data.yaml", cv::FileStorage::WRITE);
+    else
+        fs = cv::FileStorage(directory_ +"/model_data.yaml", cv::FileStorage::WRITE);
     if(!fs.isOpened()){
         cerr << "Nelze otevrit soubor" << endl;
     }

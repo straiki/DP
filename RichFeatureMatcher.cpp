@@ -38,36 +38,25 @@ using namespace cv;
     initModule_nonfree();
 //    SURF surf_extractor(5.0e3);
 
-    detector = FeatureDetector::create("SURF");
-    extractor = DescriptorExtractor::create("SURF");
-//    SurfFeatureDetector detector(5000);
-//    SurfDescriptorExtractor extractor;
+//    detector = FeatureDetector::create("SURF");
+//    extractor = DescriptorExtractor::create("SURF");
+//    CV_PROFILE("Detecting KP: ", detector->detect(imgs, imgpts););
+//    CV_PROFILE("Extracting Desc: ", extractor->compute(imgs, imgpts, descriptors););
 
-	std::cout << " -------------------- extract feature points for all images -------------------\n";
+    SurfFeatureDetector detector(350);
+    SurfDescriptorExtractor extractor;
 
-//    for(int i = 0; i < imgs.size(); ++i)
-//    {
-//        stringstream tmp;
-//        tmp << i;
-//        string text = "Extracting: ";
-//        CV_PROFILE(text.append(tmp.str()) ,surf_extractor(imgs[i],Mat(),imgpts[i],descriptors[i]););
+    std::cout << " -------------------- extract feature points for all images -------------------\n";
 
-//    }
-    CV_PROFILE("Detecting KP: ", detector->detect(imgs, imgpts););
-    CV_PROFILE("Extracting Desc: ", extractor->compute(imgs, imgpts, descriptors););
+    CV_PROFILE("Detecting KP: ", detector.detect(imgs, imgpts););
 
+    for(int i = 0; i < imgs.size(); ++i)
+    {
+        Mat temp_desc;
 
-
-    // detecting keypoints
-
-//    detector.detect(imgs, imgpts);
-
-//    for(int i = 0; i < imgs.size(); ++i)
-//    {
-//    // computing descriptors
-//        extractor.compute(imgs[i], imgpts[i], descriptors[i]);
-//    }
-
+        CV_PROFILE("Extracting KP: ", extractor.compute(imgs[i], imgpts[i], temp_desc););
+        descriptors.push_back(temp_desc);
+    }
 
     descriptors_out = descriptors;
 
@@ -105,6 +94,7 @@ void RichFeatureMatcher::MatchFeatures(int idx_i, int idx_j, vector<DMatch>* mat
 
     //matching descriptor vectors using Brute Force matcher
     FlannBasedMatcher matcher;
+//    BFMatcher matcher(NORM_L2);
 //    BFMatcher matcher(NORM_HAMMING,true); //allow cross-check. use Hamming distance for binary descriptor (ORB)
     std::vector< DMatch > matches_;
     if (matches == NULL) {
