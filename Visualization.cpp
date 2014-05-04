@@ -94,7 +94,8 @@ void visualizerShowCamera(const Matrix3f& R, const Vector3f& _t, float r, float 
 	for(int i=0;i<6;i++)
 		for(int _v=0;_v<3;_v++)
 			pm.polygons[i].vertices.push_back(ipolygon[i*3 + _v]);
-	pcl::toROSMsg(mesh_cld,pm.cloud);
+	//pcl::toROSMsg(mesh_cld,pm.cloud);
+	pcl::toPCLPointCloud2(mesh_cld, pm.cloud);
 	bShowCam = true;
 	cam_meshes.push_back(std::make_pair(name_,pm));
 	//TODO mutex release
